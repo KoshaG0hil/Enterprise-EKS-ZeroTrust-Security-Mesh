@@ -1,0 +1,16 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPContainerPrivilegeEscalation
+metadata:
+  name: psp-disallow-privileged-containers
+  annotations:
+    description: "Enforces that containers cannot run in privileged mode or allow privilege escalation."
+    framework: "CIS-EKS-v1.4.0-5.2.5"
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    excludedNamespaces: ["kube-system", "gatekeeper-system", "cilium-system"]
+  parameters:
+    privileged: false
+    allowPrivilegeEscalation: false

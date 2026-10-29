@@ -1,0 +1,6 @@
+# Sample Terraform variables for Enterprise EKS Zero-Trust Security Mesh
+aws_region                    = "us-east-1"
+environment                   = "production"
+cluster_name                  = "prod-eks-zero-trust-mesh"
+kubernetes_version            = "1.30"
+enable_eventbridge_quarantine = true

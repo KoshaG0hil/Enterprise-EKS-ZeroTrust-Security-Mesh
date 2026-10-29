@@ -1,0 +1,15 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPHostFilesystem
+metadata:
+  name: psp-block-hostpath-mounts
+  annotations:
+    description: "Prevents pods from mounting sensitive host filesystem directories to block container breakout."
+    framework: "CIS-EKS-v1.4.0-5.2.2"
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    excludedNamespaces: ["kube-system", "gatekeeper-system", "cilium-system"]
+  parameters:
+    allowedHostPaths: []

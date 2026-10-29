@@ -1,0 +1,15 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPReadOnlyRootFilesystem
+metadata:
+  name: psp-require-readonly-root-filesystem
+  annotations:
+    description: "Requires all containers in production and workloads namespaces to mount root filesystem as read-only."
+    framework: "CIS-EKS-v1.4.0-5.2.6"
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces: ["production", "staging", "workloads"]
+  parameters:
+    readOnlyRootFilesystem: true

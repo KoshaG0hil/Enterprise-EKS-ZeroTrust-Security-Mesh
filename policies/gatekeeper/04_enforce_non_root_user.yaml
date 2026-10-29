@@ -1,0 +1,16 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPAllowedUsers
+metadata:
+  name: psp-enforce-non-root-user
+  annotations:
+    description: "Enforces that container processes run as a non-root UID (runAsNonRoot: true or runAsUser > 0)."
+    framework: "CIS-EKS-v1.4.0-5.2.7"
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces: ["production", "staging", "workloads"]
+  parameters:
+    runAsUser:
+      rule: "MustRunAsNonRoot"

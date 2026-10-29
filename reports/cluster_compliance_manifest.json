@@ -1,0 +1,107 @@
+{
+  "cluster_name": "prod-eks-zero-trust-mesh",
+  "generated_at": "2026-10-29T14:06:41.375335+00:00",
+  "frameworks": [
+    "CIS-EKS-v1.4.0",
+    "NIST-SP-800-190",
+    "PCI-DSS-v4.0-Req-1.3"
+  ],
+  "summary": {
+    "overall_compliance_percentage": 37.5,
+    "total_pods_evaluated": 5,
+    "compliant_pods": 2,
+    "gatekeeper_violations_count": 4,
+    "ebpf_network_violations_count": 1,
+    "quarantined_pods_count": 1
+  },
+  "gatekeeper_violations": [
+    {
+      "rule_id": "GK-01-NO-PRIVILEGED",
+      "constraint_name": "psp-disallow-privileged-containers",
+      "pod_name": "legacy-report-worker-33d8-301",
+      "namespace": "production",
+      "severity": "CRITICAL",
+      "description": "Pod contains containers running in privileged mode, granting host capabilities.",
+      "remediation_advice": "Set securityContext.privileged: false and drop CAP_SYS_ADMIN capabilities."
+    },
+    {
+      "rule_id": "GK-02-READONLY-ROOTFS",
+      "constraint_name": "psp-require-readonly-root-filesystem",
+      "pod_name": "legacy-report-worker-33d8-301",
+      "namespace": "production",
+      "severity": "HIGH",
+      "description": "Root filesystem is writable, permitting malware persistence and binary tampering.",
+      "remediation_advice": "Set securityContext.readOnlyRootFilesystem: true and use emptyDir for scratch storage."
+    },
+    {
+      "rule_id": "GK-03-NO-HOSTPATH",
+      "constraint_name": "psp-block-hostpath-mounts",
+      "pod_name": "legacy-report-worker-33d8-301",
+      "namespace": "production",
+      "severity": "CRITICAL",
+      "description": "Pod mounts host paths: /var/run/docker.sock, exposing node host escape risk.",
+      "remediation_advice": "Remove hostPath volume mounts; use PVCs or ConfigMaps instead."
+    },
+    {
+      "rule_id": "GK-04-MUST-RUN-NON-ROOT",
+      "constraint_name": "psp-enforce-non-root-user",
+      "pod_name": "legacy-report-worker-33d8-301",
+      "namespace": "production",
+      "severity": "HIGH",
+      "description": "Container runs as root (UID 0), violating principle of least privilege.",
+      "remediation_advice": "Set securityContext.runAsNonRoot: true and specify runAsUser > 1000 in Dockerfile."
+    }
+  ],
+  "network_violations": [
+    {
+      "pod_name": "analytics-collector-88c1-409",
+      "namespace": "staging",
+      "missing_policy": "CiliumNetworkPolicy (Default-Deny / L7 Filter)",
+      "severity": "HIGH",
+      "risk_summary": "Pod is exposed to all East-West pod traffic and unrestrained egress."
+    }
+  ],
+  "pod_inventory": [
+    {
+      "name": "payment-gateway-7f9a-110",
+      "namespace": "production",
+      "status": "HEALTHY",
+      "privileged": false,
+      "readonly_root_fs": true,
+      "has_cilium_policy": true
+    },
+    {
+      "name": "auth-vault-token-55ab-204",
+      "namespace": "production",
+      "status": "HEALTHY",
+      "privileged": false,
+      "readonly_root_fs": true,
+      "has_cilium_policy": true
+    },
+    {
+      "name": "legacy-report-worker-33d8-301",
+      "namespace": "production",
+      "status": "VIOLATION_DETECTED",
+      "privileged": true,
+      "readonly_root_fs": false,
+      "has_cilium_policy": true
+    },
+    {
+      "name": "analytics-collector-88c1-409",
+      "namespace": "staging",
+      "status": "VIOLATION_DETECTED",
+      "privileged": false,
+      "readonly_root_fs": true,
+      "has_cilium_policy": false
+    },
+    {
+      "name": "compromised-web-frontend-99f2",
+      "namespace": "production",
+      "status": "QUARANTINED",
+      "privileged": false,
+      "readonly_root_fs": true,
+      "has_cilium_policy": true
+    }
+  ],
+  "sha256_checksum": "1e1388f8b15e7c747e89f16cd94fa44e7f902bc921af8915d1435f3c2bc18449"
+}

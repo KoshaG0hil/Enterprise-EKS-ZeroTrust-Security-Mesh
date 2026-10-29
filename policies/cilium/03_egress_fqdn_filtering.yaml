@@ -1,0 +1,21 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: restrict-egress-to-aws-endpoints
+  namespace: production
+  annotations:
+    description: "Restricts all pod external outbound connectivity to verified AWS service endpoints via FQDN eBPF filters."
+    framework: "Data-Exfiltration-Prevention"
+spec:
+  endpointSelector:
+    matchLabels:
+      app: payment-backend
+  egress:
+    - toFQDNs:
+        - matchPattern: "*.amazonaws.com"
+        - matchName: "dynamodb.us-east-1.amazonaws.com"
+        - matchName: "s3.us-east-1.amazonaws.com"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP

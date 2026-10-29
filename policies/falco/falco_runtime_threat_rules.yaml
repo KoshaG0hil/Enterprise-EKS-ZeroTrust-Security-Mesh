@@ -1,0 +1,27 @@
+- rule: Terminal Shell Spawned in Container
+  desc: Detects interactive shell execution inside any container environment
+  condition: >
+    spawned_process and container and
+    (proc.name in (bash, sh, zsh, ksh, csh) or proc.pname in (bash, sh, zsh)) and
+    not user.name = "system:serviceaccount:kube-system:cilium"
+  output: "CRITICAL: Terminal shell spawned in container (user=%user.name container_id=%container.id container_name=%container.name pod=%k8s.pod.name ns=%k8s.ns.name cmd=%proc.cmdline)"
+  priority: CRITICAL
+  tags: [mitre_execution, pci_dss_10.2.1, runtime_threat]
+
+- rule: Sensitive File Mutation in ReadOnly Container
+  desc: Detects write operations to system binaries or configuration files
+  condition: >
+    open_write and container and
+    (fd.name startswith "/bin" or fd.name startswith "/sbin" or fd.name startswith "/etc" or fd.name startswith "/usr/bin")
+  output: "HIGH: Unauthorized file write attempt in container (user=%user.name file=%fd.name pod=%k8s.pod.name ns=%k8s.ns.name proc=%proc.name)"
+  priority: HIGH
+  tags: [mitre_persistence, integrity, runtime_threat]
+
+- rule: Outbound Connection to Crypto Mining Pool
+  desc: Detects egress network connections towards known Monero/Stratum mining pool ports
+  condition: >
+    outbound and container and
+    (fd.sport in (3333, 4444, 5555, 7777, 9999) or fd.sip in ("minexmr.com", "pool.minexmr.com", "xmrpool.eu"))
+  output: "CRITICAL: Cryptomining egress activity detected from container (pod=%k8s.pod.name ns=%k8s.ns.name dest_ip=%fd.rip dest_port=%fd.rport)"
+  priority: CRITICAL
+  tags: [mitre_impact, crypto_hijacking, runtime_threat]

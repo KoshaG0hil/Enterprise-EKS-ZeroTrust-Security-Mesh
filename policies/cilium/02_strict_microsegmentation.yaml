@@ -1,0 +1,26 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-frontend-to-backend-l7
+  namespace: production
+  annotations:
+    description: "Least-privilege L7 eBPF filter: permits frontend pods to invoke backend service only via HTTP GET/POST on /api/v1/*."
+    framework: "Zero-Trust-L7-Segmentation"
+spec:
+  endpointSelector:
+    matchLabels:
+      app: payment-backend
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app: frontend-gateway
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+          rules:
+            http:
+              - method: "GET"
+                path: "/api/v1/.*"
+              - method: "POST"
+                path: "/api/v1/checkout"
